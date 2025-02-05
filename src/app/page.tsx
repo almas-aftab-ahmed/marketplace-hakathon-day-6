@@ -1,20 +1,60 @@
+"use client";
 
-import { CarRecommendationPage } from '@/components/CarRecommendationPage';
-import Hero from '@/components/Hero';
-import { PopularCarPage } from '@/components/PopularCarPage';
+import { useEffect, useState } from "react";
+import { sanityfetch } from "@/sanity/lib/fetch";
+import { allCars } from "@/sanity/lib/queries";
+import Hero from "@/components/Hero";
+import CarCard from "@/components/carDetails/CarCard";
+import type { Car } from "@/types/car";
+import SearchBarAndFilter from "@/components/navigation/SearchBarandFilter";
 
-import React from 'react';
+const Page = () => {
+  const [cars, setCars] = useState<Car[]>([]);
+  const [filteredCars, setFilteredCars] = useState<Car[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
-const page = () => {
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const fetchedCars: Car[] = await sanityfetch({ query: allCars });
+        const uniqueCars = Array.from(new Map(fetchedCars.map((car) => [car.slug, car])).values());
+        setCars(uniqueCars);
+        setFilteredCars(uniqueCars);
+      } catch (error) {
+        setErrorMessage("Failed to load car data. Please try again later.");
+        console.error("Car data fetch error:", error);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
   return (
     <div>
-     
-      <Hero/>
-      <PopularCarPage/>
-      <CarRecommendationPage/>
-     
+
+
+              {/* Search and Filter Component */}
+              <SearchBarAndFilter onFilter={setFilteredCars} />
+
+      <Hero />
+      <div className="my-10 px-6">
+        <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800">Cars For Rent</h1>
+
+
+        {errorMessage ? (
+          <div className="text-center text-red-500">{errorMessage}</div>
+        ) : filteredCars.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            {filteredCars.map((car) => (
+              <CarCard key={car.slug} car={car} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-6">No cars available at the moment.</p>
+        )}
+      </div>
     </div>
   );
-}
+};
 
-export default page;
+export default Page;

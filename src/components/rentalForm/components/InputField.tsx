@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { InputFieldProps } from '../types';
 
-export const InputField: React.FC<InputFieldProps> = ({ label, placeholder, type = "text" }) => {
+export const InputField: React.FC<InputFieldProps> = ({ label, name, placeholder, type = "text", value, onChange }) => {
   const inputId = `${label.toLowerCase().replace(/\s+/g, '-')}-input`;
   
   return (
@@ -13,6 +13,9 @@ export const InputField: React.FC<InputFieldProps> = ({ label, placeholder, type
         <input
           type={type}
           id={inputId}
+          name={name} // ✅ FIXED: name prop added
+          value={value} // ✅ FIXED: value prop added
+          onChange={onChange} // ✅ FIXED: onChange handler added
           placeholder={placeholder}
           className="px-8 py-6 rounded-xl bg-neutral-100 w-full"
           aria-label={label}

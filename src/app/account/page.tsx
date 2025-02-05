@@ -1,15 +1,5 @@
 
-
-
-
-
-
-
-
-
-
-
-'use client';
+/*'use client';
 import { FC, useState } from 'react';
 
 const Account: FC = () => {
@@ -37,8 +27,8 @@ const Account: FC = () => {
           Manage your account information securely.
         </p>
         <form onSubmit={handleSubmit}>
-          {/* Username Field */}
-          <div className="mb-4">
+          {/* Username Field */
+         /* <div className="mb-4">
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">
               Username
             </label>
@@ -52,8 +42,8 @@ const Account: FC = () => {
               placeholder="Enter your username"
             />
           </div>
-          {/* Email Field */}
-          <div className="mb-4">
+          {/* Email Field */
+          /*<div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
@@ -67,8 +57,8 @@ const Account: FC = () => {
               placeholder="Enter your email"
             />
           </div>
-          {/* Password Field */}
-          <div className="mb-4">
+          /*{/* Password Field */
+          /*<div className="mb-4">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
@@ -82,8 +72,8 @@ const Account: FC = () => {
               placeholder="Enter your password"
             />
           </div>
-          {/* Save Changes Button */}
-          <button
+          {/* Save Changes Button */
+         /* <button
             type="submit"
             className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
           >
@@ -95,4 +85,6 @@ const Account: FC = () => {
   );
 };
 
-export default Account;
+export default Account;/*/
+
+

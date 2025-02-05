@@ -1,4 +1,4 @@
-export interface CarType {
+/*export interface CarType {
   id: string;
   name: string;
   type: string;
@@ -37,4 +37,4 @@ export interface CapacityOption {
   label: string;
   count: number;
   isSelected?: boolean;
-}
+}*/

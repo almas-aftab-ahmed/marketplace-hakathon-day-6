@@ -2,7 +2,7 @@ import * as React from 'react';
 import { SelectFieldProps } from '../types';
 import Image from 'next/image';
 
-export const SelectField: React.FC<SelectFieldProps> = ({ label, placeholder, icon }) => {
+export const SelectField: React.FC<SelectFieldProps> = ({ label, placeholder, icon = '/default-icon.png' }) => {
   const selectId = `${label.toLowerCase().replace(/\s+/g, '-')}-select`;
   
   return (

@@ -1,12 +1,12 @@
-import { CarDetails } from '@/components/carDetails/CarDetails';
-import React from 'react';
+import CarDetail from "@/components/carDetails/CarDetails";
+import React from "react";
 
-const page = () => {
+const CarDetailPage = () => {
   return (
     <div>
-     <CarDetails/>
+      <CarDetail car={undefined} />
     </div>
   );
-}
+};
 
-export default page;
+export default CarDetailPage;

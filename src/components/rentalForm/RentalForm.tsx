@@ -1,205 +1,171 @@
-import * as React from 'react';
-import { InputField } from './components/InputField';
-import { SelectField } from './components/SelectField';
-import { StepHeader } from './components/StepHeader';
-import { PaymentMethod } from './components/PaymentMethod';
-import { RentalSummary } from './components/RentalSummary';
-import Image from 'next/image';
+"use client";
+import { useState } from "react";
+import { InputField } from "./components/InputField";
+import { StepHeader } from "./components/StepHeader";
+import { RentalSummary } from "./components/RentalSummary";
+import { client } from "@/sanity/lib/client";
+import { loadStripe } from "@stripe/stripe-js";
+import { useRouter } from "next/navigation";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+const CITIES = ["New York", "Los Angeles", "Chicago", "Houston", "Miami"];
 
 export const RentalForm: React.FC = () => {
+  const router = useRouter();
+  const [orderData, setOrderData] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    zipCode: "",
+    phoneNumber: "",
+    email: "",
+    cars: [],
+    total: 0,
+    status: "pending",
+    pickupLocation: "",
+    pickupDate: "",
+    pickupTime: "",
+    dropoffLocation: "",
+    dropoffDate: "",
+    dropoffTime: "",
+  });
+
+  const [rentalConfirmed, setRentalConfirmed] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setOrderData({
+      ...orderData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // Updated handleCheckout with Stripe and Sanity
+  const handleCheckout = async () => {
+    setRentalConfirmed(true);
+
+    try {
+      // Save the order data to Sanity
+      const order = await client.create({
+        _type: "order",
+        ...orderData,
+        status: "payment_pending",
+        cars: orderData.cars.map((carId) => ({ _type: "reference", _ref: carId })),
+      });
+
+      // Now proceed with Stripe checkout
+      const stripe = await stripePromise;
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        body: JSON.stringify({
+          total: orderData.total,
+          metadata: { sanityOrderId: order._id },
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const session = await response.json();
+
+      if (stripe) {
+        const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
+        if (error) {
+          console.error("Checkout error:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      alert("Payment processing failed. Please try again.");
+    }
+  };
+
+  // CitySelect component
+  const CitySelect = ({ name, label }: { name: string; label: string }) => (
+    <div className="flex flex-col gap-2 mb-4">
+      <label className="text-sm font-medium text-gray-700">{label}</label>
+      <select
+        name={name}
+        value={orderData[name as keyof typeof orderData]}
+        onChange={handleChange}
+        className="p-2 border rounded-md"
+        required
+      >
+        <option value="">Select City</option>
+        {CITIES.map(city => (
+          <option key={city} value={city}>{city}</option>
+        ))}
+      </select>
+    </div>
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await client.create({
+        _type: "order",
+        ...orderData,
+        cars: orderData.cars.map((carId) => ({ _type: "reference", _ref: carId })),
+      });
+      alert("Order placed successfully!");
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Failed to place order. Please try again.");
+    }
+  };
+
   return (
     <div className="overflow-hidden p-8 bg-neutral-100 max-md:px-5">
-      <div className="flex gap-5 max-md:flex-col">
-        <div className="flex flex-col w-[63%] max-md:ml-0 max-md:w-full">
-          <form className="flex flex-col grow max-md:mt-10 max-md:max-w-full">
-            {/* Billing Section */}
-            <div className="flex overflow-hidden flex-col p-6 w-full bg-white rounded-xl max-w-[852px]">
-              <StepHeader
-                title="Billing Info"
-                subtitle="Please enter your billing info"
-                step="Step 1 of 4"
-              />
-              
-              <div className="flex gap-5 max-md:flex-col">
-                <InputField label="Name" placeholder="Your name" />
-                <InputField label="Phone Number" placeholder="Phone number" />
+      <div className="flex gap-5 flex-wrap max-md:flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col grow max-md:mt-10 max-md:max-w-full">
+          <div className="flex flex-col p-6 w-full bg-white rounded-xl max-w-[852px]">
+            <StepHeader title="Billing Info" subtitle="Please enter your billing info" step="Step 1 of 4" />
+            
+            {/* Input Fields */}
+            <InputField label="First Name" name="firstName" placeholder="Your first name" value={orderData.firstName} onChange={handleChange} />
+            <InputField label="Last Name" name="lastName" placeholder="Your last name" value={orderData.lastName} onChange={handleChange} />
+            <InputField label="Address" name="address" placeholder="Your address" value={orderData.address} onChange={handleChange} />
+            <InputField label="Zip Code" name="zipCode" placeholder="Zip Code" value={orderData.zipCode} onChange={handleChange} />
+            <InputField label="Phone Number" name="phoneNumber" placeholder="Phone number" value={orderData.phoneNumber} onChange={handleChange} />
+            <InputField label="Email Address" name="email" placeholder="Email address" value={orderData.email} onChange={handleChange} />
+
+            {/* Rental Confirmation */}
+            {rentalConfirmed && (
+              <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+                Car successfully rented! Redirecting to payment...
               </div>
-              
-              <div className="flex flex-wrap gap-8 mt-6">
-                <InputField label="Address" placeholder="Address" />
-                <InputField label="Town / City" placeholder="Town or city" />
-              </div>
-            </div>
+            )}
 
-            {/* Rental Info Section */}
-            <div className="flex overflow-hidden flex-col p-6 mt-8 w-full bg-white rounded-xl">
-              <StepHeader
-                title="Rental Info"
-                subtitle="Please select your rental date"
-                step="Step 2 of 4"
-              />
-              
-              {/* Pick-up Section */}
-              <div className="flex gap-2 items-center mt-8">
-                <div className="flex justify-center items-center px-1 w-4 h-4 bg-blue-600 bg-opacity-30 rounded-[70px]">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full" />
-                </div>
-                <span className="text-base font-semibold tracking-tight text-gray-900">
-                  Pick - Up
-                </span>
-              </div>
+            <CitySelect name="pickupLocation" label="Pickup Location" />
+            <InputField label="Pickup Date" name="pickupDate" type="date" value={orderData.pickupDate} onChange={handleChange} />
+            <InputField label="Pickup Time" name="pickupTime" type="time" value={orderData.pickupTime} onChange={handleChange} />
+            
+            <CitySelect name="dropoffLocation" label="Dropoff Location" />
+            <InputField label="Dropoff Date" name="dropoffDate" type="date" value={orderData.dropoffDate} onChange={handleChange} />
+            <InputField label="Dropoff Time" name="dropoffTime" type="time" value={orderData.dropoffTime} onChange={handleChange} />
+          </div>
 
-              <div className="flex flex-wrap gap-8 mt-6">
-                <SelectField
-                  label="Locations"
-                  placeholder="Select your city"
-                  icon="/images/r1.svg"
-                />
-                <SelectField
-                  label="Date"
-                  placeholder="Select your date"
-                  icon="/images/r1.svg"
-                />
-              </div>
+          {/* Payment Section */}
+          <div className="flex overflow-hidden flex-col p-6 mt-8 w-full bg-white rounded-xl">
+            <StepHeader title="Payment Method" subtitle="Please select your payment method" step="Step 3 of 4" />
+            <button
+              type="button"
+              onClick={handleCheckout}
+              className="gap-2 self-start px-6 py-3 mt-4 text-base font-medium tracking-tight text-center text-white bg-[#3563E9] rounded min-h-[10px] w-[130px] whitespace-nowrap"
+            >
+              Rent Now
+            </button>
+          </div>
+        </form>
 
-              <SelectField
-                label="Time"
-                placeholder="Select your time"
-                icon="/images/r1.svg"
-              />
-
-              {/* Drop-off Section */}
-              <div className="flex gap-2 items-center mt-8">
-                <div className="flex justify-center items-center px-1 w-4 h-4 bg-blue-400 bg-opacity-30 rounded-[70px]">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full" />
-                </div>
-                <span className="text-base font-semibold tracking-tight text-gray-900">
-                  Drop - Off
-                </span>
-              </div>
-
-              <div className="flex flex-wrap gap-8 mt-6">
-                <SelectField
-                  label="Locations"
-                  placeholder="Select your city"
-                  icon="/images/r1.svg"
-                />
-                <SelectField
-                  label="Date"
-                  placeholder="Select your date"
-                  icon="/images/r1.svg"
-                />
-              </div>
-
-              <SelectField
-                label="Time"
-                placeholder="Select your time"
-                icon="/images/r1.svg"
-              />
-            </div>
-
-            {/* Payment Method Section */}
-            <div className="flex overflow-hidden flex-col p-6 mt-8 w-full bg-white rounded-xl">
-              <StepHeader
-                title="Payment Method"
-                subtitle="Please enter your payment method"
-                step="Step 3 of 4"
-              />
-
-              <div className="flex overflow-hidden flex-col p-6 mt-8 w-full rounded-xl bg-neutral-100">
-                <div className="flex gap-5 max-md:flex-col">
-                  <InputField label="Card Number" placeholder="Card number" />
-                  <InputField label="Expiration Date" placeholder="DD / MM / YY" />
-                </div>
-                
-                <div className="flex flex-wrap gap-8 mt-6">
-                  <InputField label="Card Holder" placeholder="Card holder" />
-                  <InputField label="CVC" placeholder="CVC" type="password" />
-                </div>
-              </div>
-
-              <PaymentMethod
-                icon="/images/p1.svg"
-                name="PayPal"
-                logo="/images/p2.svg"
-              />
-              
-              <PaymentMethod
-                icon="/images/p1.svg"
-                name="Bitcoin"
-                logo="/images/p3.svg"
-              />
-            </div>
-
-            {/* Confirmation Section */}
-            <div className="flex overflow-hidden flex-col p-6 mt-8 w-full bg-white rounded-xl">
-              <StepHeader
-                title="Confirmation"
-                subtitle="We are getting to the end. Just few clicks and your rental is ready!"
-                step="Step 4 of 4"
-              />
-
-              <div className="flex flex-col mt-8">
-                <label className="flex items-center gap-5 px-8 py-4 rounded-xl bg-neutral-100">
-                  <input type="checkbox" className="sr-only" />
-                  <div className="flex justify-center items-center w-6 h-6 border-2 border-gray-300 rounded">
-                    <div className="hidden w-4 h-4 bg-blue-600 rounded" />
-                  </div>
-                  <span className="text-base font-semibold tracking-tight text-slate-800">
-                    I agree with sending an Marketing and newsletter emails. No spam, promissed!
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-5 px-8 py-4 mt-6 rounded-xl bg-neutral-100">
-                  <input type="checkbox" className="sr-only" />
-                  <div className="flex justify-center items-center w-6 h-6 border-2 border-gray-300 rounded">
-                    <div className="hidden w-4 h-4 bg-blue-600 rounded" />
-                  </div>
-                  <span className="text-base font-semibold tracking-tight text-slate-800">
-                    I agree with our terms and conditions and privacy policy
-                  </span>
-                </label>
-              </div>
-                    <button
-  className="gap-2 self-start px-6 py-3 mt-1 text-base font-medium tracking-tight text-center text-white bg-[#3563E9] rounded min-h-[10px] w-[130px] whitespace-nowrap"
- 
->
-  Rent Now
-</button>
-
-              <div className="flex overflow-hidden flex-col mt-8 max-w-full w-[548px]">
-                <Image
-                  loading="lazy"
-                  src="/images/tick.svg"
-                  height={6}
-                  width={6}
-                  alt=""
-                  className="w-8 aspect-square"
-                />
-                <div className="mt-4">
-                  <h4 className="text-base font-semibold tracking-tight text-gray-900">
-                    All your data are safe
-                  </h4>
-                  <p className="mt-2 text-sm font-medium tracking-tight text-slate-400">
-                    We are using the most advanced security to provide you the best experience ever.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div className="flex flex-col ml-5 w-[37%] max-md:ml-0 max-md:w-full">
-          <RentalSummary
-            carName="Nissan GT - R"
-            carImage="/images/tick2.png"
-            rating={4}
-            reviews={440}
-            subtotal={80.00}
-            tax={0}
-            total={80.00}
-          />
-        </div>
+        {/* Rental Summary */}
+        <RentalSummary 
+          carName="Nissan GT - R" 
+          carImage="/images/tick2.png" 
+          rating={4} 
+          reviews={440} 
+          subtotal={80.00} 
+          tax={0} 
+          total={80.00} 
+        />
       </div>
     </div>
   );

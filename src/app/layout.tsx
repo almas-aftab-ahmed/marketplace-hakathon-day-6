@@ -3,6 +3,9 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Navigation } from "@/components/navigation/Navigation";
 import Footers from "@/components/Footers";
+import { WishlistProvider } from "../app/context/wishlistcontext"; 
+import { ClerkProvider } from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,14 +29,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navigation/>
-        {children}
-        <Footers/>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+        <body>
+          <WishlistProvider>
+            <Navigation />
+
+            {/* Authentication Controls */}
+            <div className="auth-container flex justify-end p-4">
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
+
+            <main>{children}</main>
+            <Footers />
+          </WishlistProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
