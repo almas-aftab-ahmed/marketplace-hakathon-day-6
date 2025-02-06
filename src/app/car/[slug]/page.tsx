@@ -150,35 +150,34 @@ export default async function CarPage({ params }: CarPageProps) {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="bg-white shadow-lg rounded-lg p-6">
+    <div className="container mx-auto p-4 sm:p-6">
+      <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 md:p-8">
         {/* ✅ Car Image */}
         {car.imageUrl && (
           <Image
             src={car.imageUrl}
             alt={car.name}
-            width={300}
+            width={350}
             height={200}
-            className="w-full h-64 object-cover rounded-lg"
+            className="w-full h-48 sm:h-56 object-contain rounded-lg mx-auto mb-4"
           />
         )}
 
         {/* ✅ Car Details */}
-        <div className="mt-4">
-          <h2 className="text-3xl font-bold">{car.name}</h2>
-          <p className="text-xl text-gray-600">${car.pricePerDay} / day</p>
-          <p className="text-gray-500">Original Price: ${car.originalPrice}</p>
-          <p className="text-gray-500">Brand: {car.brand}</p>
-          <p className="text-gray-500">Fuel Capacity: {car.fuelCapacity}</p>
-          <p className="text-gray-500">Transmission: {car.transmission}</p>
-          <p className="text-gray-500">Seating Capacity: {car.seatingCapacity}</p>
+        <div className="mt-4 space-y-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{car.name}</h2>
+          <p className="text-lg sm:text-xl text-gray-800">${car.pricePerDay} / day</p>
+          <p className="text-sm sm:text-base text-gray-600">Original Price: ${car.originalPrice}</p>
+          <p className="text-sm sm:text-base text-gray-600">Brand: {car.brand}</p>
+          <p className="text-sm sm:text-base text-gray-600">Fuel Capacity: {car.fuelCapacity}</p>
+          <p className="text-sm sm:text-base text-gray-600">Transmission: {car.transmission}</p>
+          <p className="text-sm sm:text-base text-gray-600">Seating Capacity: {car.seatingCapacity}</p>
         </div>
 
         {/* ✅ Rent Now Button */}
         <div className="mt-6">
           <RentalControls car={car} />
         </div>
-
       </div>
     </div>
   );

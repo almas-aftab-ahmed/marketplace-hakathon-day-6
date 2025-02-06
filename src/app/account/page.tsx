@@ -88,3 +88,15 @@ const Account: FC = () => {
 export default Account;/*/
 
 
+import React from 'react'
+
+const account = () => {
+  return (
+    <div>
+      
+    </div>
+  )
+}
+
+export default account;
+

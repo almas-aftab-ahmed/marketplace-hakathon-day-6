@@ -1,4 +1,4 @@
-"use client";
+/*"use client";
 
 import * as React from "react";
 import { NavigationIcons } from "./NavigationIcons";
@@ -18,30 +18,62 @@ export const Navigation: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between px-5 md:px-12 py-6 bg-white border border-solid border-blue-300 border-opacity-40 shadow-md">
-      {/* Logo and Search Bar */}
-      <div className="flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0">
+      {/* Logo and Search Bar */
+      /*<div className="flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0">
         <div className="text-3xl font-bold tracking-tighter text-[#3563E9]">MORENT</div>
         <div className="flex-grow md:flex-grow-0">
         </div>
       </div>
 
-      {/* Navigation Icons */}
-      <div className="flex items-center gap-5">
+      {/* Navigation Icons */
+      /*<div className="flex items-center gap-5">
         <NavigationIcons icons={navigationIcons} />
       </div>
     </div>
   );
+};/*/
+
+
+
+
+
+
+
+
+
+
+"use client";
+
+import * as React from "react";
+import { NavigationIcons } from "./NavigationIcons";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+
+export const Navigation: React.FC = () => {
+  const navigationIcons = [
+    { src: "/images/1.svg", alt: "Wishlist", className: "w-11 rounded-none", link: "/wishlist" },
+    { src: "/images/2.svg", alt: "Dashboard", className: "w-11 rounded-none", link: "/dashboard" }
+  ];
+
+  return (
+    <div className="flex flex-col md:flex-row items-center justify-between px-5 md:px-12 py-6 bg-white border border-solid border-blue-300 border-opacity-40 shadow-md">
+      {/* Logo */}
+      <div className="text-3xl font-bold tracking-tighter text-[#3563E9]">MORENT</div>
+
+      {/* Navigation Icons */}
+      <div className="flex items-center gap-5">
+        <NavigationIcons icons={navigationIcons} />
+
+        {/* Clerk Authentication */}
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
+        <SignedIn>
+          <UserButton  />
+        </SignedIn>
+      </div>
+    </div>
+  );
 };
-
-
-
-
-
-
-
-
-
-
 
 
 
