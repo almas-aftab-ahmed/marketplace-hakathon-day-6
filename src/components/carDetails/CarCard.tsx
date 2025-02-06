@@ -92,54 +92,10 @@ export function CarCard({ car }: CarCardProps) {
   );
 }*/
 
+
+
+
 /*"use client";
-
-import Link from "next/link";
-import Image from "next/image";
-import { RentalControls } from "../RentalControls";
-import type { Car } from "@/types/car";
-
-const CarCard = ({ car }: { car: Car }) => (
-  
-  <div className="border rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl bg-white">
-    <Link href={`/car/${car.slug.current}`} className="block">
-
-
-      <div className="relative h-48">
-        {car.imageUrl ? (
-          <Image
-            src={car.imageUrl || car.image?.asset?.url || "/fallback-image.jpg"}
-            alt={`${car.name} image`}
-            width={300}
-            height={200}
-            className="w-82 h-38 object-cover rounded-md"
-          />
-        ) : (
-          <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-            <span className="text-gray-500">Image not available</span>
-          </div>
-        )}
-      </div>
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">{car.name}</h2>
-        <p className="text-lg font-semibold text-gray-900">
-          ${car.pricePerDay}/day
-        </p>
-      </div>
-    </Link>
-    <div className="px-4 pb-4">
-      <RentalControls car={car} />
-    </div>
-  </div>
-);
-
-export default CarCard;/*/
-
-
-
-
-
-"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -162,8 +118,8 @@ const CarCard = ({ car }: { car: Car }) => {
 
   return (
     <div className="border rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl bg-white relative">
-      {/* ✅ Wishlist Button */}
-      <button
+      {/* ✅ Wishlist Button */
+      /*<button
         onClick={() => {
           console.log("💖 Toggle Wishlist Clicked for:", car.slug);
           toggleWishlist(car); // ✅ Call toggleWishlist
@@ -181,6 +137,64 @@ const CarCard = ({ car }: { car: Car }) => {
         <div className="relative h-48">
           <Image
             src={car.imageUrl || "/fallback-image.jpg"}
+            alt={`${car.name} image`}
+            width={300}
+            height={300}
+            className="object-cover rounded-md justify-center items-center"
+          />
+        </div>
+        <div className="p-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{car.name}</h2>
+          <p className="text-lg font-semibold text-gray-900">${car.pricePerDay}/day</p>
+        </div>
+      </Link>
+      <div className="px-4 pb-4">
+        <RentalControls car={car} />
+      </div>
+    </div>
+  );
+};
+
+export default CarCard;/*/
+
+
+
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { RentalControls } from "../RentalControls";
+import type { Car } from "@/types/car";
+import { useWishlist } from "@/app/context/wishlistcontext";
+import { FaHeart, FaRegHeart } from "react-icons/fa"; // ✅ React Icons import
+
+const CarCard = ({ car }: { car: Car }) => {
+  const { toggleWishlist, isWishlisted } = useWishlist(); // ✅ Use context to get wishlist functionality
+
+  console.log("🚗 CarCard Rendered for:", car.name, " | Slug:", car.slug);
+  console.log("💖 Wishlist Status:", isWishlisted(car.slug));
+
+  return (
+    <div className="border rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl bg-white relative">
+      {/* ✅ Wishlist Button */}
+      <button
+        onClick={() => {
+          console.log("💖 Toggle Wishlist Clicked for:", car.slug);
+          toggleWishlist(car); // Toggle the wishlist for the current car
+        }}
+        className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+      >
+        {isWishlisted(car.slug) ? (
+          <FaHeart className="text-red-500 text-2xl transition duration-300" />
+        ) : (
+          <FaRegHeart className="text-gray-500 text-2xl transition duration-300" />
+        )}
+      </button>
+
+      <Link href={`/car/${car.slug ?? "error-slug"}`} className="block">
+        <div className="relative h-48">
+          <Image
+            src={car.imageUrl || "/fallback-image.jpg"} // Fallback if no image URL
             alt={`${car.name} image`}
             width={300}
             height={300}

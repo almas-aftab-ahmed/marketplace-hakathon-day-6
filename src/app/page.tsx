@@ -7,8 +7,10 @@ import Hero from "@/components/Hero";
 import CarCard from "@/components/carDetails/CarCard";
 import type { Car } from "@/types/car";
 import SearchBarAndFilter from "@/components/navigation/SearchBarandFilter";
+import { useWishlist } from "@/app/context/wishlistcontext"; // ✅ Import wishlist
 
 const Page = () => {
+  const { wishlist } = useWishlist(); // ✅ Ensure wishlist state is available
   const [cars, setCars] = useState<Car[]>([]);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,17 +31,14 @@ const Page = () => {
     fetchCars();
   }, []);
 
+  console.log("🛒 Wishlist State:", wishlist); // ✅ Debug Wishlist State
+
   return (
     <div>
-
-
-              {/* Search and Filter Component */}
-              <SearchBarAndFilter onFilter={setFilteredCars} />
-
+      <SearchBarAndFilter onFilter={setFilteredCars} />
       <Hero />
       <div className="my-10 px-6">
         <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800">Cars For Rent</h1>
-
 
         {errorMessage ? (
           <div className="text-center text-red-500">{errorMessage}</div>

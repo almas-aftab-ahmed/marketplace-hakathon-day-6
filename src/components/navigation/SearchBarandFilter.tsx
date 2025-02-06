@@ -13,6 +13,7 @@ const SearchBarAndFilter: React.FC<{ onFilter: (filteredCars: Car[]) => void }> 
   const [cars, setCars] = useState<Car[]>([]);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
 
+  // ✅ Fetch Cars from Sanity
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -21,13 +22,13 @@ const SearchBarAndFilter: React.FC<{ onFilter: (filteredCars: Car[]) => void }> 
         setCars(uniqueCars);
         setFilteredCars(uniqueCars);
       } catch (error) {
-        console.error("Car data fetch error:", error);
+        console.error("🚨 Car data fetch error:", error);
       }
     };
-
     fetchCars();
   }, []);
 
+  // ✅ Filter Cars Dynamically
   useEffect(() => {
     let updatedCars = cars;
 
@@ -51,44 +52,48 @@ const SearchBarAndFilter: React.FC<{ onFilter: (filteredCars: Car[]) => void }> 
   }, [searchQuery, filterType, priceRange, cars, onFilter]);
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-4 px-6 py-4 bg-blue-50 border border-gray-300 rounded-lg shadow-sm">
-      {/* Search Bar */}
-      <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 w-full md:w-2/5 bg-white shadow-sm">
+    <div className="flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg shadow-lg">
+      {/* 🔎 Search Bar */}
+      <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 w-full md:w-2/5 bg-gray-100 shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
         <Icon src="/images/search.png" alt="Search icon" className="w-5 h-5 mr-2" />
         <input
           type="text"
           placeholder="Search for cars..."
-          className="flex-1 outline-none bg-transparent text-gray-700 placeholder-gray-400"
+          className="flex-1 bg-transparent text-gray-700 placeholder-gray-400 outline-none"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      {/* Type Filter */}
-      <select
-        className="border border-gray-300 rounded-full px-4 py-2 bg-white shadow-sm text-gray-700"
-        value={filterType}
-        onChange={(e) => setFilterType(e.target.value)}
-      >
-        <option value="All">All Cars</option>
-        <option value="SUV">SUV</option>
-        <option value="Sedan">Sedan</option>
-        <option value="Truck">Truck</option>
-        <option value="Coupe">Coupe</option>
-      </select>
+      {/* 🚘 Type Filter */}
+      <div className="relative w-full md:w-auto">
+        <select
+          className="w-full md:w-44 border border-gray-300 rounded-full px-4 py-2 bg-gray-100 shadow-sm text-gray-700 focus:ring-2 focus:ring-blue-500"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
+          <option value="All">All Cars</option>
+          <option value="SUV">SUV</option>
+          <option value="Sedan">Sedan</option>
+          <option value="Truck">Truck</option>
+          <option value="Coupe">Coupe</option>
+        </select>
+      </div>
 
-      {/* Price Filter */}
-      <select
-        className="border border-gray-300 rounded-full px-4 py-2 bg-white shadow-sm text-gray-700"
-        value={priceRange}
-        onChange={(e) => setPriceRange(e.target.value)}
-      >
-        <option value="All">All Prices</option>
-        <option value="0-20000">$0 - $20,000</option>
-        <option value="20000-50000">$20,000 - $50,000</option>
-        <option value="50000-100000">$50,000 - $100,000</option>
-        <option value="100000-500000">$100,000 - $500,000</option>
-      </select>
+      {/* 💰 Price Filter */}
+      <div className="relative w-full md:w-auto">
+        <select
+          className="w-full md:w-44 border border-gray-300 rounded-full px-4 py-2 bg-gray-100 shadow-sm text-gray-700 focus:ring-2 focus:ring-blue-500"
+          value={priceRange}
+          onChange={(e) => setPriceRange(e.target.value)}
+        >
+          <option value="All">All Prices</option>
+          <option value="0-20000">$0 - $20,000</option>
+          <option value="20000-50000">$20,000 - $50,000</option>
+          <option value="50000-100000">$50,000 - $100,000</option>
+          <option value="100000-500000">$100,000 - $500,000</option>
+        </select>
+      </div>
     </div>
   );
 };

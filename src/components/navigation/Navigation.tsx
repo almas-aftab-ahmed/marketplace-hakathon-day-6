@@ -1,13 +1,12 @@
 "use client";
 
 import * as React from "react";
-import SearchBarAndFilter from "./SearchBarandFilter";
 import { NavigationIcons } from "./NavigationIcons";
 import { Car } from "@/types/car";
 
 export const Navigation: React.FC = () => {
   const navigationIcons = [
-    { src: "/images/1.svg", alt: "Navigation icon 1", className: "w-11 rounded-none", link: "/cardetails" },
+    { src: "/images/1.svg", alt: "Navigation icon 1", className: "w-11 rounded-none", link: "/wishlist" },
     { src: "/images/2.svg", alt: "Navigation icon 2", className: "w-11 rounded-none", link: "/dashboard" },
     { src: "/images/4.png", alt: "Profile icon", className: "w-11 rounded-[90px]", link: "/account" }
   ];

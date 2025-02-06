@@ -28,7 +28,7 @@
 
 
 export interface Car {
-  totalAmount: ReactI18NextChildren | Iterable<ReactI18NextChildren>;
+  price: number;
   _id: string;
   name: string;
   _type: "car";
