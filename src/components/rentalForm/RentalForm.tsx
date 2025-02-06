@@ -5,14 +5,12 @@ import { StepHeader } from "./components/StepHeader";
 import { RentalSummary } from "./components/RentalSummary";
 import { client } from "@/sanity/lib/client";
 import { loadStripe } from "@stripe/stripe-js";
-import { useRouter } from "next/navigation";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const CITIES = ["New York", "Los Angeles", "Chicago", "Houston", "Miami"];
 
 export const RentalForm: React.FC = () => {
-  const router = useRouter();
   const [orderData, setOrderData] = useState({
     firstName: "",
     lastName: "",
@@ -100,11 +98,6 @@ export const RentalForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await client.create({
-        _type: "order",
-        ...orderData,
-        cars: orderData.cars.map((carId) => ({ _type: "reference", _ref: carId })),
-      });
       alert("Order placed successfully!");
     } catch (error) {
       console.error("Error placing order:", error);

@@ -11,7 +11,7 @@ import { useWishlist } from "@/app/context/wishlistcontext"; // ✅ Import wishl
 
 const Page = () => {
   const { wishlist } = useWishlist(); // ✅ Ensure wishlist state is available
-  const [cars, setCars] = useState<Car[]>([]);
+  const [, setCars] = useState<Car[]>([]);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 

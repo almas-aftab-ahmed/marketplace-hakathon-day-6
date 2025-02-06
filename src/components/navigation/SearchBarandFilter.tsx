@@ -11,7 +11,7 @@ const SearchBarAndFilter: React.FC<{ onFilter: (filteredCars: Car[]) => void }> 
   const [filterType, setFilterType] = useState("All");
   const [priceRange, setPriceRange] = useState("All");
   const [cars, setCars] = useState<Car[]>([]);
-  const [filteredCars, setFilteredCars] = useState<Car[]>([]);
+  const [, setFilteredCars] = useState<Car[]>([]);
 
   // ✅ Fetch Cars from Sanity
   useEffect(() => {
