@@ -1,31 +1,3 @@
-/*export interface car {
-  _id: string;
-  name: string;
-  _type:"car";
-  image?:{
-    asset:{
-      _ref:string;
-      _type:"image";
-      
-    }
-  };
-  originalprice:string;
-  priceperday:string;
-  brand:string;
-  description:string;
-  seatingcapacity:string;
-  fuelcapacity:string;
-  transmission:string;
-  imageUrl?:string;
-
-  slug: {
-    _type: 'slug';
-    current: string;
-  };
-}*/
-
-
-
 
 export interface Car {
   price: number;
@@ -44,6 +16,9 @@ export interface Car {
   brand: string;
   seatingCapacity: string;
   fuelCapacity: string;
+  rentalDays?: number;  // ✅ Add this
+  totalAmount?: number; // ✅ Add this
+
   transmission: string;
   tags?: string[];
   imageUrl?: string;
