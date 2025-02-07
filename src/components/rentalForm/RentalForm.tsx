@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { InputField } from "./components/InputField";
 import { StepHeader } from "./components/StepHeader";
 import { RentalSummary } from "./components/RentalSummary";
@@ -31,19 +31,16 @@ export const RentalForm: React.FC = () => {
 
   const [rentalConfirmed, setRentalConfirmed] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setOrderData({
-      ...orderData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setOrderData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Updated handleCheckout with Stripe and Sanity
   const handleCheckout = async () => {
     setRentalConfirmed(true);
 
     try {
-      // Save the order data to Sanity
+      // Save order to Sanity
       const order = await client.create({
         _type: "order",
         ...orderData,
@@ -51,24 +48,23 @@ export const RentalForm: React.FC = () => {
         cars: orderData.cars.map((carId) => ({ _type: "reference", _ref: carId })),
       });
 
-      // Now proceed with Stripe checkout
-      const stripe = await stripePromise;
+      // Stripe checkout session
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          total: orderData.total,
+          amount: orderData.total * 100, // Convert to cents
           metadata: { sanityOrderId: order._id },
         }),
-        headers: { "Content-Type": "application/json" },
       });
 
       const session = await response.json();
 
-      if (stripe) {
-        const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
-        if (error) {
-          console.error("Checkout error:", error);
-        }
+      if (session.id) {
+        const stripe = await stripePromise;
+        await stripe?.redirectToCheckout({ sessionId: session.id });
+      } else {
+        alert("Error creating checkout session");
       }
     } catch (error) {
       console.error("Checkout failed:", error);
@@ -76,39 +72,10 @@ export const RentalForm: React.FC = () => {
     }
   };
 
-  // CitySelect component
-  const CitySelect = ({ name, label }: { name: string; label: string }) => (
-    <div className="flex flex-col gap-2 mb-4">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <select
-        name={name}
-        value={orderData[name as keyof typeof orderData]}
-        onChange={handleChange}
-        className="p-2 border rounded-md"
-        required
-      >
-        <option value="">Select City</option>
-        {CITIES.map(city => (
-          <option key={city} value={city}>{city}</option>
-        ))}
-      </select>
-    </div>
-  );
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      alert("Order placed successfully!");
-    } catch (error) {
-      console.error("Error placing order:", error);
-      alert("Failed to place order. Please try again.");
-    }
-  };
-
   return (
     <div className="overflow-hidden p-8 bg-neutral-100 max-md:px-5">
       <div className="flex gap-5 flex-wrap max-md:flex-col">
-        <form onSubmit={handleSubmit} className="flex flex-col grow max-md:mt-10 max-md:max-w-full">
+        <form onSubmit={(e) => e.preventDefault()} className="flex flex-col grow max-md:mt-10 max-md:max-w-full">
           <div className="flex flex-col p-6 w-full bg-white rounded-xl max-w-[852px]">
             <StepHeader title="Billing Info" subtitle="Please enter your billing info" step="Step 1 of 4" />
             
@@ -120,20 +87,43 @@ export const RentalForm: React.FC = () => {
             <InputField label="Phone Number" name="phoneNumber" placeholder="Phone number" value={orderData.phoneNumber} onChange={handleChange} />
             <InputField label="Email Address" name="email" placeholder="Email address" value={orderData.email} onChange={handleChange} />
 
+            {/* Pickup & Dropoff Location Dropdowns */}
+            <label className="font-medium">Pickup Location</label>
+            <select
+              name="pickupLocation"
+              value={orderData.pickupLocation}
+              onChange={handleChange}
+              className="p-2 border rounded"
+            >
+              <option value="">Select City</option>
+              {CITIES.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+
+            <label className="font-medium mt-4">Dropoff Location</label>
+            <select
+              name="dropoffLocation"
+              value={orderData.dropoffLocation}
+              onChange={handleChange}
+              className="p-2 border rounded"
+            >
+              <option value="">Select City</option>
+              {CITIES.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+
             {/* Rental Confirmation */}
             {rentalConfirmed && (
               <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
                 Car successfully rented! Redirecting to payment...
               </div>
             )}
-
-            <CitySelect name="pickupLocation" label="Pickup Location" />
-            <InputField label="Pickup Date" name="pickupDate" type="date" value={orderData.pickupDate} onChange={handleChange} />
-            <InputField label="Pickup Time" name="pickupTime" type="time" value={orderData.pickupTime} onChange={handleChange} />
-            
-            <CitySelect name="dropoffLocation" label="Dropoff Location" />
-            <InputField label="Dropoff Date" name="dropoffDate" type="date" value={orderData.dropoffDate} onChange={handleChange} />
-            <InputField label="Dropoff Time" name="dropoffTime" type="time" value={orderData.dropoffTime} onChange={handleChange} />
           </div>
 
           {/* Payment Section */}
