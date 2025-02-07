@@ -4,7 +4,7 @@ import React from "react";
 import { Car } from "@/types/car";
 import { useWishlist } from "@/app/context/wishlistcontext";
 import { FaHeart, FaRegHeart } from "react-icons/fa"; // ✅ React Icons import
-
+import Image from "next/image";
 interface CarDetailProps {
   car?: Car; // ✅ Car optional
 }
@@ -35,11 +35,7 @@ const CarDetail: React.FC<CarDetailProps> = ({ car }) => {
 
       {/* Car Image */}
       <div className="w-full h-60 relative">
-        <img
-          src={car.imageUrl || "/fallback-image.jpg"}
-          alt={car.name}
-          className="w-full h-full object-cover rounded-lg"
-        />
+      <Image src={car.imageUrl || "/fallback-image.jpg"} alt={car.name} width={500} height={300} className="w-full h-full object-cover rounded-lg" />
       </div>
 
       {/* Car Details */}
